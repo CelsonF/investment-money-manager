@@ -15,7 +15,12 @@ export const Route = createRootRoute({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'TanStack Start Starter',
+        title: 'WealthMind · Investment portfolio manager',
+      },
+      {
+        name: 'description',
+        content:
+          'Track your investment portfolio — stocks, REITs, crypto, ETFs and more — with allocation charts and JSON export/import.',
       },
     ],
     links: [
@@ -34,7 +39,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         {children}
         <TanStackDevtools
           config={{
