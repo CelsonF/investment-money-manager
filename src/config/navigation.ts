@@ -1,8 +1,11 @@
 import {
+  ArrowLeftRight,
+  BadgeDollarSign,
   HelpCircle,
   LayoutDashboard,
   PieChart,
   Settings,
+  Target,
   Wallet,
 } from 'lucide-react'
 import type { NavItemConfig, UserRole } from '../types'
@@ -31,6 +34,30 @@ export const MAIN_NAV: NavItemConfig[] = [
     label: 'Portfolio',
     target: 'portfolio',
     allowedRoles: ['admin', 'manager', 'viewer'],
+  },
+  {
+    key: 'allocation',
+    type: 'link',
+    icon: Target,
+    label: 'Alocação',
+    href: '/allocation',
+    allowedRoles: ['admin', 'manager'],
+  },
+  {
+    key: 'transactions',
+    type: 'link',
+    icon: ArrowLeftRight,
+    label: 'Transações',
+    href: '/transactions',
+    allowedRoles: ['admin', 'manager'],
+  },
+  {
+    key: 'proventos',
+    type: 'link',
+    icon: BadgeDollarSign,
+    label: 'Proventos',
+    href: '/proventos',
+    allowedRoles: ['admin', 'manager'],
   },
 ]
 

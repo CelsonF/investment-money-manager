@@ -1,4 +1,4 @@
-import type { Asset, AssetTypeId } from '../types'
+import type { Asset, AssetTypeId, Currency } from '../types'
 import { ASSET_TYPES } from '../constants/assetTypes'
 
 const TYPE_IDS = new Set<string>(ASSET_TYPES.map((t) => t.id))
@@ -22,6 +22,23 @@ export function exportJSON(assets: Array<Asset>): void {
   URL.revokeObjectURL(url)
 }
 
+export function exportCSV(assets: Array<Asset>): void {
+  const header = 'Ticker,Tipo,Moeda,Quantidade,Preço Médio,Valor Total,Data de Criação'
+  const rows = assets.map((a) => {
+    const qty = a.quantity ?? ''
+    const total = a.quantity != null ? a.averagePrice * a.quantity : a.averagePrice
+    return [a.ticker, a.type, a.currency, qty, a.averagePrice, total, a.createdAt.slice(0, 10)].join(',')
+  })
+  const csv = [header, ...rows].join('\n')
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = 'investments.csv'
+  link.click()
+  URL.revokeObjectURL(url)
+}
+
 export function importJSON(file: File): Promise<Array<Asset>> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
@@ -37,6 +54,7 @@ export function importJSON(file: File): Promise<Array<Asset>> {
             id: typeof a.id === 'string' ? a.id : crypto.randomUUID(),
             ticker: String(a.ticker ?? '').toUpperCase(),
             type: asAssetType(a.type),
+            currency: (a.currency === 'USD' ? 'USD' : 'BRL') as Currency,
             quantity:
               a.quantity === null || a.quantity === undefined
                 ? null

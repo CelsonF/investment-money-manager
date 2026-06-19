@@ -1,7 +1,16 @@
+import { useEffect } from 'react'
 import { HeadContent, Outlet, Scripts, createRootRoute } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
-import { ProfileProvider } from '../context/ProfileContext'
+import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
+import { useProfileStore } from '../store/profileStore'
+import { useAssetStore } from '../store/assetStore'
+import { useLocaleStore } from '../store/localeStore'
+import { useUIStore } from '../store/uiStore'
+import { fetchExchangeRate } from '../server/portfolio'
+import Toaster from '../components/ui/Toaster'
+
+const queryClient = new QueryClient()
 
 import appCss from '../styles.css?url'
 
@@ -35,11 +44,42 @@ export const Route = createRootRoute({
   shellComponent: RootDocument,
 })
 
+// Fetches exchange rate once per session (10-min stale) and syncs to locale store
+function ExchangeRateSync() {
+  const { data } = useQuery({
+    queryKey: ['exchange-rate'],
+    queryFn: () => fetchExchangeRate(),
+    staleTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    retry: 1,
+  })
+
+  useEffect(() => {
+    if (data?.rate) useLocaleStore.getState().setExchangeRate(data.rate)
+  }, [data])
+
+  return null
+}
+
 function RootLayout() {
+  const { theme } = useUIStore()
+
+  useEffect(() => {
+    useProfileStore.getState().load()
+    useAssetStore.getState().load()
+  }, [])
+
+  // Apply theme attribute on mount and whenever theme changes
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+  }, [theme])
+
   return (
-    <ProfileProvider>
+    <QueryClientProvider client={queryClient}>
+      <ExchangeRateSync />
       <Outlet />
-    </ProfileProvider>
+      <Toaster />
+    </QueryClientProvider>
   )
 }
 

@@ -13,6 +13,7 @@
       "id": "a1",
       "ticker": "AAPL",
       "type": "stock",
+      "currency": "USD",
       "quantity": 10,
       "averagePrice": 178.5,
       "createdAt": "2024-01-20T00:00:00.000Z"
@@ -21,6 +22,7 @@
       "id": "a2",
       "ticker": "MSFT",
       "type": "stock",
+      "currency": "USD",
       "quantity": 5,
       "averagePrice": 380.0,
       "createdAt": "2024-01-20T00:00:00.000Z"
@@ -29,6 +31,7 @@
       "id": "a3",
       "ticker": "JNJ",
       "type": "stock",
+      "currency": "USD",
       "quantity": 100,
       "averagePrice": 25.0,
       "createdAt": "2024-02-01T00:00:00.000Z"
@@ -37,6 +40,7 @@
       "id": "a4",
       "ticker": "HGLG11",
       "type": "reit",
+      "currency": "BRL",
       "quantity": 50,
       "averagePrice": 168.0,
       "createdAt": "2024-02-10T00:00:00.000Z"
@@ -45,6 +49,7 @@
       "id": "a5",
       "ticker": "MXRF11",
       "type": "reit",
+      "currency": "BRL",
       "quantity": 100,
       "averagePrice": 10.2,
       "createdAt": "2024-02-15T00:00:00.000Z"
@@ -53,6 +58,7 @@
       "id": "a6",
       "ticker": "TESOURO",
       "type": "fixed_income",
+      "currency": "BRL",
       "quantity": null,
       "averagePrice": 5000.0,
       "createdAt": "2024-03-01T00:00:00.000Z"
@@ -61,6 +67,7 @@
       "id": "a7",
       "ticker": "LCI-X",
       "type": "fixed_income",
+      "currency": "BRL",
       "quantity": null,
       "averagePrice": 10000.0,
       "createdAt": "2024-03-10T00:00:00.000Z"
@@ -69,6 +76,7 @@
       "id": "a8",
       "ticker": "IVVB11",
       "type": "etf",
+      "currency": "BRL",
       "quantity": 20,
       "averagePrice": 312.0,
       "createdAt": "2024-03-15T00:00:00.000Z"
@@ -77,6 +85,7 @@
       "id": "a9",
       "ticker": "BOVA11",
       "type": "etf",
+      "currency": "BRL",
       "quantity": 30,
       "averagePrice": 115.0,
       "createdAt": "2024-04-01T00:00:00.000Z"
@@ -85,6 +94,7 @@
       "id": "a10",
       "ticker": "BTC",
       "type": "crypto",
+      "currency": "BRL",
       "quantity": 0.5,
       "averagePrice": 180000.0,
       "createdAt": "2024-04-10T00:00:00.000Z"
@@ -93,6 +103,7 @@
       "id": "a11",
       "ticker": "ETH",
       "type": "crypto",
+      "currency": "BRL",
       "quantity": 2,
       "averagePrice": 9500.0,
       "createdAt": "2024-04-15T00:00:00.000Z"
@@ -101,11 +112,166 @@
       "id": "a12",
       "ticker": "ALASKA",
       "type": "fund",
+      "currency": "BRL",
       "quantity": null,
       "averagePrice": 8000.0,
       "createdAt": "2024-05-01T00:00:00.000Z"
     }
   ],
+  "allocationTree": {
+    "id": "tree-01",
+    "name": "Carteira Principal",
+    "updated_at": "2025-01-01T00:00:00.000Z",
+    "root": {
+      "id": "root",
+      "name": "Carteira Principal",
+      "type": "region",
+      "target_percentage": 100,
+      "current_value": 0,
+      "children": [
+        {
+          "id": "br",
+          "name": "Brasil",
+          "type": "region",
+          "target_percentage": 80,
+          "current_value": 0,
+          "children": [
+            {
+              "id": "br-rv",
+              "name": "Renda Variável",
+              "type": "asset_class",
+              "target_percentage": 50,
+              "current_value": 0,
+              "children": [
+                {
+                  "id": "br-acoes",
+                  "name": "Ações BR",
+                  "type": "category",
+                  "target_percentage": 30,
+                  "current_value": 0
+                },
+                {
+                  "id": "br-fiis",
+                  "name": "FIIs",
+                  "type": "category",
+                  "target_percentage": 30,
+                  "current_value": 9420
+                },
+                {
+                  "id": "br-etfs",
+                  "name": "ETFs Brasil",
+                  "type": "category",
+                  "target_percentage": 25,
+                  "current_value": 9690
+                },
+                {
+                  "id": "br-fundos",
+                  "name": "Fundos",
+                  "type": "category",
+                  "target_percentage": 15,
+                  "current_value": 8000
+                }
+              ]
+            },
+            {
+              "id": "br-rf",
+              "name": "Renda Fixa",
+              "type": "asset_class",
+              "target_percentage": 30,
+              "current_value": 0,
+              "children": [
+                {
+                  "id": "br-tesouro",
+                  "name": "Tesouro Direto",
+                  "type": "category",
+                  "target_percentage": 40,
+                  "current_value": 5000
+                },
+                {
+                  "id": "br-lci-lca",
+                  "name": "LCI / LCA",
+                  "type": "category",
+                  "target_percentage": 60,
+                  "current_value": 10000
+                }
+              ]
+            },
+            {
+              "id": "br-cripto",
+              "name": "Cripto",
+              "type": "asset_class",
+              "target_percentage": 20,
+              "current_value": 0,
+              "children": [
+                {
+                  "id": "br-btc",
+                  "name": "Bitcoin",
+                  "type": "asset",
+                  "target_percentage": 70,
+                  "current_value": 90000
+                },
+                {
+                  "id": "br-eth",
+                  "name": "Ethereum",
+                  "type": "asset",
+                  "target_percentage": 30,
+                  "current_value": 19000
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "us",
+          "name": "Internacional",
+          "type": "region",
+          "target_percentage": 20,
+          "current_value": 0,
+          "children": [
+            {
+              "id": "us-stocks",
+              "name": "Ações EUA",
+              "type": "asset_class",
+              "target_percentage": 60,
+              "current_value": 0,
+              "children": [
+                {
+                  "id": "us-tech",
+                  "name": "Tecnologia",
+                  "type": "category",
+                  "target_percentage": 60,
+                  "current_value": 21373
+                },
+                {
+                  "id": "us-healthcare",
+                  "name": "Saúde",
+                  "type": "category",
+                  "target_percentage": 40,
+                  "current_value": 14500
+                }
+              ]
+            },
+            {
+              "id": "us-etfs",
+              "name": "ETFs EUA",
+              "type": "asset_class",
+              "target_percentage": 40,
+              "current_value": 0,
+              "children": [
+                {
+                  "id": "us-etfs-broad",
+                  "name": "ETFs Amplos",
+                  "type": "category",
+                  "target_percentage": 100,
+                  "current_value": 0
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
   "portfolioHistory": [
     { "month": "2025-01", "totalValue": 42000 },
     { "month": "2025-02", "totalValue": 44500 },

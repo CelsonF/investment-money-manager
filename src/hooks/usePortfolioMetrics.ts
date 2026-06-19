@@ -1,7 +1,11 @@
 import { allocationByCount, allocationByValue } from '../lib/allocation'
+import { positionValue } from '../types/asset'
 import { pct } from '../lib/format'
 import { ASSET_TYPES } from '../config/assetTypes'
-import type { Asset, ChartDatum } from '../types'
+import type { Asset, ChartDatum, Currency } from '../types'
+
+type Converter = (amount: number, currency: Currency) => number
+const identity: Converter = (amount) => amount
 
 export interface PortfolioMetrics {
   count: number
@@ -18,9 +22,18 @@ export interface PortfolioMetrics {
   topLabel: string
 }
 
-export function usePortfolioMetrics(assets: Array<Asset>): PortfolioMetrics {
+export function usePortfolioMetrics(
+  assets: Array<Asset>,
+  convert: Converter = identity,
+): PortfolioMetrics {
   const count = assets.length
-  const total = assets.reduce((s, a) => s + a.averagePrice * (a.quantity ?? 0), 0)
+
+  // Total in display currency (USD assets converted if viewing in BRL, and vice versa)
+  const total = assets.reduce(
+    (s, a) => s + convert(positionValue(a), a.currency ?? 'BRL'),
+    0,
+  )
+
   const hasQuantity = assets.some((a) => a.quantity != null && a.quantity > 0)
   const withValue = assets.filter((a) => a.quantity != null && a.quantity > 0).length
   const valuedShare = count ? Math.round((withValue / count) * 100) : 0
@@ -30,7 +43,7 @@ export function usePortfolioMetrics(assets: Array<Asset>): PortfolioMetrics {
   const diversification = Math.round((numTypes / totalTypes) * 100)
 
   const byCount = allocationByCount(assets)
-  const byValue = allocationByValue(assets)
+  const byValue = allocationByValue(assets, convert)
 
   const useValueAlloc = hasQuantity && byValue.length > 0
   const allocation = useValueAlloc ? byValue : byCount

@@ -1,11 +1,13 @@
 import { Link } from '@tanstack/react-router'
-import { Sparkles } from 'lucide-react'
+import { Sparkles, X } from 'lucide-react'
 import { MAIN_NAV, BOTTOM_NAV, filterNavByRole } from '../../config/navigation'
-import { useProfileCtx } from '../../context/ProfileContext'
+import { useProfileStore } from '../../store/profileStore'
 import { useScrollNav } from '../../hooks/useScrollNav'
+import { useLocaleStore } from '../../store/localeStore'
+import { useUIStore } from '../../store/uiStore'
 import ProfileAvatar from '../profile/ProfileAvatar'
 import { cn } from '../../lib/cn'
-import type { NavItemConfig } from '../../types'
+import type { NavItemConfig, TranslationKey } from '../../types'
 
 interface NavItemProps {
   item: NavItemConfig
@@ -15,6 +17,8 @@ interface NavItemProps {
 
 function NavItem({ item, active = false, onClick }: NavItemProps) {
   const Icon = item.icon
+  const { t } = useLocaleStore()
+  const label = t(`nav.${item.key}` as TranslationKey)
 
   const base =
     'flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-colors'
@@ -24,12 +28,12 @@ function NavItem({ item, active = false, onClick }: NavItemProps) {
   if (item.href) {
     return (
       <Link
-        to={item.href as '/settings'}
+        to={item.href}
         activeProps={{ className: cn(base, activeCls) }}
         inactiveProps={{ className: cn(base, idleCls) }}
       >
         <Icon size={18} />
-        {item.label}
+        {label}
       </Link>
     )
   }
@@ -37,28 +41,43 @@ function NavItem({ item, active = false, onClick }: NavItemProps) {
   return (
     <button onClick={onClick} className={cn(base, active ? activeCls : idleCls)}>
       <Icon size={18} />
-      {item.label}
+      {label}
     </button>
   )
 }
 
-export default function Sidebar() {
-  const { profile } = useProfileCtx()
+function SidebarContent({ onClose }: { onClose?: () => void }) {
+  const { profile } = useProfileStore()
   const { isHome, activeKey, navigate } = useScrollNav()
 
   const role = profile?.role ?? 'viewer'
   const mainItems = filterNavByRole(MAIN_NAV, role)
   const bottomItems = filterNavByRole(BOTTOM_NAV, role)
 
+  const handleNavClick = (item: NavItemConfig) => {
+    navigate(item)
+    onClose?.()
+  }
+
   return (
-    <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-white/[0.06] bg-[#0c0c14] p-5 lg:flex">
-      <div className="mb-8 flex items-center gap-2.5">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 text-white">
-          <Sparkles size={18} />
+    <>
+      <div className="mb-8 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 text-white">
+            <Sparkles size={18} />
+          </div>
+          <span className="text-lg font-semibold tracking-tight text-white">
+            Wealth<span className="text-violet-400">Mind</span>
+          </span>
         </div>
-        <span className="text-lg font-semibold tracking-tight text-white">
-          Wealth<span className="text-violet-400">Mind</span>
-        </span>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-stone-500 hover:bg-white/[0.06] hover:text-white lg:hidden"
+          >
+            <X size={16} />
+          </button>
+        )}
       </div>
 
       <nav className="flex flex-col gap-1.5">
@@ -67,18 +86,14 @@ export default function Sidebar() {
             key={item.key}
             item={item}
             active={isHome && activeKey === item.key}
-            onClick={() => navigate(item)}
+            onClick={() => handleNavClick(item)}
           />
         ))}
       </nav>
 
       <div className="mt-auto flex flex-col gap-1.5 pt-6">
         {bottomItems.map((item) => (
-          <NavItem
-            key={item.key}
-            item={item}
-            onClick={() => navigate(item)}
-          />
+          <NavItem key={item.key} item={item} onClick={() => handleNavClick(item)} />
         ))}
 
         <div className="mt-4 flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.03] p-3">
@@ -97,6 +112,34 @@ export default function Sidebar() {
           </div>
         </div>
       </div>
-    </aside>
+    </>
+  )
+}
+
+export default function Sidebar() {
+  const { mobileNavOpen, closeMobileNav } = useUIStore()
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-[var(--c-border)] bg-[var(--c-sidebar)] p-5 lg:flex">
+        <SidebarContent />
+      </aside>
+
+      {/* Mobile drawer overlay */}
+      {mobileNavOpen && (
+        <div className="fixed inset-0 z-40 lg:hidden">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={closeMobileNav}
+          />
+          {/* Drawer */}
+          <aside className="absolute top-0 left-0 flex h-full w-64 shrink-0 flex-col border-r border-[var(--c-border)] bg-[var(--c-sidebar)] p-5">
+            <SidebarContent onClose={closeMobileNav} />
+          </aside>
+        </div>
+      )}
+    </>
   )
 }

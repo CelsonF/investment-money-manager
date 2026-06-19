@@ -1,5 +1,6 @@
 import { Sparkles } from 'lucide-react'
-import { money, pct } from '../../lib/format'
+import { pct } from '../../lib/format'
+import { useLocaleStore } from '../../store/localeStore'
 import type { ChartDatum } from '../../types'
 import DonutChart from '../charts/DonutChart'
 
@@ -18,14 +19,15 @@ export default function OverviewPanel({
   topLabel,
   topShare,
 }: OverviewPanelProps) {
+  const { t, money } = useLocaleStore()
   const format = byValue ? money : (v: number) => `${v}`
 
   return (
     <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-5">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-[15px] font-semibold text-white">Allocation</h2>
+        <h2 className="text-[15px] font-semibold text-white">{t('overview.title')}</h2>
         <span className="rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] text-stone-400">
-          {byValue ? 'By value' : 'By count'}
+          {byValue ? t('overview.byValue') : t('overview.byCount')}
         </span>
       </div>
 
@@ -33,7 +35,7 @@ export default function OverviewPanel({
         data={data}
         totalRef={totalRef}
         format={format}
-        centerLabel={byValue ? 'Total' : 'Assets'}
+        centerLabel={byValue ? t('overview.total') : t('overview.assets')}
       />
 
       <div className="mt-5 space-y-2.5">
@@ -56,12 +58,11 @@ export default function OverviewPanel({
 
       <div className="mt-5 rounded-xl border border-violet-500/20 bg-gradient-to-br from-violet-500/10 to-indigo-500/10 p-4">
         <div className="mb-1 flex items-center gap-2 text-sm font-medium text-violet-300">
-          <Sparkles size={15} /> Insight
+          <Sparkles size={15} />
+          {t('overview.insight')}
         </div>
         <p className="text-sm text-stone-400">
-          Your largest allocation is{' '}
-          <span className="text-white">{topLabel}</span> at{' '}
-          <span className="text-white">{topShare}%</span> of the portfolio.
+          {t('overview.insightText', { label: topLabel, share: topShare })}
         </p>
       </div>
     </div>
