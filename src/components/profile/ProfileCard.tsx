@@ -1,7 +1,9 @@
+import type { UserRole } from '../../types'
 import type { Profile } from '../../types'
+import { cn } from '../../lib/cn'
 import ProfileAvatar from './ProfileAvatar'
 
-const roleBadgeColor: Record<string, string> = {
+const roleBadgeCls: Record<UserRole, string> = {
   admin: 'bg-violet-500/15 text-violet-300',
   manager: 'bg-blue-500/15 text-blue-300',
   viewer: 'bg-stone-500/15 text-stone-400',
@@ -25,7 +27,10 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
         </div>
         <div className="truncate text-sm text-stone-500">{profile.email}</div>
         <span
-          className={`mt-1.5 inline-block rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${roleBadgeColor[profile.role] ?? roleBadgeColor.viewer}`}
+          className={cn(
+            'mt-1.5 inline-block rounded-full px-2.5 py-0.5 text-xs font-medium capitalize',
+            roleBadgeCls[profile.role],
+          )}
         >
           {profile.role}
         </span>

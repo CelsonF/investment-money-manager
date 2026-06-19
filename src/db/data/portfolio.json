@@ -1,0 +1,30 @@
+{
+  "updatedAt": "2026-06-19T03:00:20.487Z",
+  "total": 3,
+  "assets": [
+    {
+      "id": "e16e4ca2-ec82-45d6-9f28-a0546cbc8b7b",
+      "ticker": "PTR",
+      "type": "stock",
+      "quantity": 100,
+      "averagePrice": 2.4,
+      "createdAt": "2026-06-19T02:59:11.798Z"
+    },
+    {
+      "id": "bfee4e95-7d2f-40d5-ac41-3a032e80f00d",
+      "ticker": "AFF",
+      "type": "fixed_income",
+      "quantity": null,
+      "averagePrice": 2344,
+      "createdAt": "2026-06-19T02:59:36.105Z"
+    },
+    {
+      "id": "922916e3-e0c3-4808-be6c-b0089395e357",
+      "ticker": "AAL",
+      "type": "etf",
+      "quantity": null,
+      "averagePrice": 2400,
+      "createdAt": "2026-06-19T03:00:20.471Z"
+    }
+  ]
+}

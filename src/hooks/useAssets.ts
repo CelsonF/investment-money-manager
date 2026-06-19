@@ -2,14 +2,6 @@ import { useCallback, useEffect, useState } from 'react'
 import type { Asset } from '../types'
 import { getAssets, saveAssets } from '../server/portfolio'
 
-/**
- * Portfolio state backed by a local JSON database (`data/portfolio.json`),
- * read/written through TanStack Start server functions.
- *
- * The initial load runs inside an effect (client only), so the hook stays
- * SSR-safe — during server rendering the portfolio starts empty and `loading`
- * stays `true` until the data is fetched in the browser.
- */
 export function useAssets() {
   const [assets, setAssets] = useState<Array<Asset>>([])
   const [loading, setLoading] = useState(true)
@@ -29,25 +21,29 @@ export function useAssets() {
     }
   }, [])
 
-  const persist = useCallback((list: Array<Asset>) => {
-    setAssets(list)
-    saveAssets({ data: list }).catch((e) =>
-      console.error('Failed to save portfolio', e),
-    )
-  }, [])
+  // Recebe um updater fn para evitar closure stale sobre "assets"
+  const persist = useCallback((updater: (prev: Array<Asset>) => Array<Asset>) => {
+    setAssets((prev) => {
+      const next = updater(prev)
+      saveAssets({ data: next }).catch((e) =>
+        console.error('Failed to save portfolio', e),
+      )
+      return next
+    })
+  }, []) // dep array vazio → referência estável para sempre
 
   const add = useCallback(
-    (item: Asset) => persist([...assets, item]),
-    [assets, persist],
+    (item: Asset) => persist((prev) => [...prev, item]),
+    [persist],
   )
 
   const remove = useCallback(
-    (id: string) => persist(assets.filter((a) => a.id !== id)),
-    [assets, persist],
+    (id: string) => persist((prev) => prev.filter((a) => a.id !== id)),
+    [persist],
   )
 
   const replace = useCallback(
-    (list: Array<Asset>) => persist(list),
+    (list: Array<Asset>) => persist(() => list),
     [persist],
   )
 

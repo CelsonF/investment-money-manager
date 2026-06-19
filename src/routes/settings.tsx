@@ -1,19 +1,48 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useEffect, useRef, useState } from 'react'
 import { ArrowLeft, Camera, Check, Loader2, Save } from 'lucide-react'
+import { cn } from '../lib/cn'
 import Sidebar from '../components/layout/Sidebar'
 import ProfileAvatar from '../components/profile/ProfileAvatar'
 import ProfileCard from '../components/profile/ProfileCard'
-import { useProfile } from '../hooks/useProfile'
+import { useProfileCtx } from '../context/ProfileContext'
 
 export const Route = createFileRoute('/settings')({ component: SettingsPage })
 
-const inputCls =
-  'w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white placeholder:text-stone-500 outline-none transition-colors focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20'
+const inputBase =
+  'w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white placeholder:text-stone-500 outline-none transition-colors'
 const labelCls = 'mb-1.5 block text-xs font-medium text-stone-400'
 
+interface SaveButtonProps {
+  onClick: () => void
+  saving: boolean
+  saved: boolean
+  disabled: boolean
+}
+
+function SaveButton({ onClick, saving, saved, disabled }: SaveButtonProps) {
+  const icon = saving ? (
+    <Loader2 size={16} className="animate-spin" />
+  ) : saved ? (
+    <Check size={16} />
+  ) : (
+    <Save size={16} />
+  )
+
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 px-5 py-2.5 text-sm font-medium text-white shadow-lg shadow-violet-600/20 transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      {icon}
+      {saved ? 'Saved!' : 'Save changes'}
+    </button>
+  )
+}
+
 function SettingsPage() {
-  const { profile, loading, save } = useProfile()
+  const { profile, loading, save } = useProfileCtx()
   const [name, setName] = useState('')
   const [avatar, setAvatar] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
@@ -31,7 +60,9 @@ function SettingsPage() {
     const file = e.target.files?.[0]
     if (!file) return
     const reader = new FileReader()
-    reader.onload = () => setAvatar(reader.result as string)
+    reader.onload = () => {
+      if (typeof reader.result === 'string') setAvatar(reader.result)
+    }
     reader.readAsDataURL(file)
     e.target.value = ''
   }
@@ -40,10 +71,15 @@ function SettingsPage() {
     const trimmed = name.trim()
     if (!trimmed) return
     setSaving(true)
-    await save({ name: trimmed, avatarUrl: avatar })
-    setSaving(false)
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2500)
+    try {
+      await save({ name: trimmed, avatarUrl: avatar })
+      setSaved(true)
+      setTimeout(() => setSaved(false), 2500)
+    } catch (e) {
+      console.error('Failed to save profile', e)
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -133,50 +169,54 @@ function SettingsPage() {
 
               {/* Name field */}
               <div className="mb-4">
-                <label className={labelCls}>Display name</label>
+                <label className={labelCls}>
+                  Display name
+                </label>
                 <input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Your name"
-                  className={inputCls}
                   onKeyDown={(e) => e.key === 'Enter' && handleSave()}
+                  className={cn(
+                    inputBase,
+                    'focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20',
+                  )}
                 />
               </div>
 
               {/* Email (read-only) */}
               <div className="mb-4">
-                <label className={labelCls}>Email</label>
+                <label className={labelCls}>
+                  Email
+                </label>
                 <input
                   value={profile.email}
                   readOnly
-                  className={`${inputCls} cursor-not-allowed opacity-50`}
+                  className={cn(inputBase, 'cursor-not-allowed opacity-50')}
                 />
               </div>
 
               {/* Role (read-only) */}
               <div className="mb-6">
-                <label className={labelCls}>Role</label>
+                <label className={labelCls}>
+                  Role
+                </label>
                 <input
                   value={profile.role}
                   readOnly
-                  className={`${inputCls} cursor-not-allowed capitalize opacity-50`}
+                  className={cn(
+                    inputBase,
+                    'cursor-not-allowed capitalize opacity-50',
+                  )}
                 />
               </div>
 
-              <button
+              <SaveButton
                 onClick={handleSave}
+                saving={saving}
+                saved={saved}
                 disabled={saving || !name.trim()}
-                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 px-5 py-2.5 text-sm font-medium text-white shadow-lg shadow-violet-600/20 transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {saving ? (
-                  <Loader2 size={16} className="animate-spin" />
-                ) : saved ? (
-                  <Check size={16} />
-                ) : (
-                  <Save size={16} />
-                )}
-                {saved ? 'Saved!' : 'Save changes'}
-              </button>
+              />
             </div>
           </div>
         ) : null}

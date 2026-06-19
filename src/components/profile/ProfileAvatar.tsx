@@ -1,3 +1,5 @@
+import { cn } from '../../lib/cn'
+
 interface ProfileAvatarProps {
   avatarUrl: string | null
   initials: string
@@ -16,23 +18,25 @@ export default function ProfileAvatar({
   avatarUrl,
   initials,
   size = 'md',
-  className = '',
+  className,
 }: ProfileAvatarProps) {
-  const sizeClass = sizeMap[size]
-
   if (avatarUrl) {
     return (
       <img
         src={avatarUrl}
         alt="Profile"
-        className={`${sizeClass} rounded-full object-cover ${className}`}
+        className={cn(sizeMap[size], 'rounded-full object-cover', className)}
       />
     )
   }
 
   return (
     <div
-      className={`${sizeClass} flex shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 font-semibold text-white ${className}`}
+      className={cn(
+        sizeMap[size],
+        'flex shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 font-semibold text-white',
+        className,
+      )}
     >
       {initials}
     </div>

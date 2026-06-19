@@ -24,6 +24,7 @@ export function useProfile() {
   const save = useCallback(
     async (updates: Partial<Omit<Profile, 'id' | 'createdAt'>>) => {
       if (!profile) return null
+      const previous = profile
       const updated: Profile = { ...profile, ...updates }
       if (updates.name) {
         const parts = updates.name.trim().split(/\s+/)
@@ -33,7 +34,12 @@ export function useProfile() {
             : updates.name[0].toUpperCase()
       }
       setProfile(updated)
-      await updateProfile({ data: updated })
+      try {
+        await updateProfile({ data: updated })
+      } catch (e) {
+        setProfile(previous)
+        throw e
+      }
       return updated
     },
     [profile],

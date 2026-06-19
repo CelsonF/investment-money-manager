@@ -1,10 +1,12 @@
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
+import { HeadContent, Outlet, Scripts, createRootRoute } from '@tanstack/react-router'
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
 import { TanStackDevtools } from '@tanstack/react-devtools'
+import { ProfileProvider } from '../context/ProfileContext'
 
 import appCss from '../styles.css?url'
 
 export const Route = createRootRoute({
+  component: RootLayout,
   head: () => ({
     meta: [
       {
@@ -32,6 +34,14 @@ export const Route = createRootRoute({
   }),
   shellComponent: RootDocument,
 })
+
+function RootLayout() {
+  return (
+    <ProfileProvider>
+      <Outlet />
+    </ProfileProvider>
+  )
+}
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (

@@ -9,46 +9,22 @@ import PortfolioList from '../components/portfolio/PortfolioList'
 import AssetFormModal from '../components/portfolio/AssetFormModal'
 import ChartsView from '../components/charts/ChartsView'
 import { useAssets } from '../hooks/useAssets'
-import { useProfile } from '../hooks/useProfile'
+import { useProfileCtx } from '../context/ProfileContext'
+import { usePortfolioMetrics } from '../hooks/usePortfolioMetrics'
 import { exportJSON, importJSON } from '../lib/storage'
-import { allocationByCount, allocationByValue } from '../lib/allocation'
-import { money, pct } from '../lib/format'
-import { ASSET_TYPES } from '../config/assetTypes'
-import type { ChartDatum } from '../types'
+import { money } from '../lib/format'
 
 export const Route = createFileRoute('/')({ component: Home })
 
 function Home() {
   const { assets, loading, add, remove, replace } = useAssets()
-  const { profile } = useProfile()
+  const { profile } = useProfileCtx()
   const [modalOpen, setModalOpen] = useState(false)
-
-  const count = assets.length
-  const total = assets.reduce(
-    (s, a) => s + (Number(a.averagePrice) || 0) * (Number(a.quantity) || 0),
-    0,
-  )
-  const hasQuantity = assets.some((a) => a.quantity)
-  const withValue = assets.filter(
-    (a) => a.quantity != null && a.quantity > 0,
-  ).length
-  const valuedShare = count ? Math.round((withValue / count) * 100) : 0
-  const numTypes = ASSET_TYPES.filter((t) =>
-    assets.some((a) => a.type === t.id),
-  ).length
-  const diversification = Math.round((numTypes / ASSET_TYPES.length) * 100)
-
-  const byCount = allocationByCount(assets)
-  const byValue = allocationByValue(assets)
-  const useValue = hasQuantity && byValue.length > 0
-  const allocation: Array<ChartDatum> = useValue ? byValue : byCount
-  const allocTotal = useValue ? total : count
-  const top = allocation.reduce<ChartDatum | null>(
-    (m, d) => (d.value > (m?.value ?? -1) ? d : m),
-    null,
-  )
-  const topShare = top ? pct(top.value, allocTotal) : 0
-  const topLabel = top ? top.label : '—'
+  const {
+    count, total, hasQuantity, withValue, valuedShare,
+    numTypes, totalTypes, diversification,
+    byCount, byValue, topShare, topLabel,
+  } = usePortfolioMetrics(assets)
 
   const handleImport = async (file: File) => {
     try {
@@ -98,7 +74,8 @@ function Home() {
                 </div>
               </div>
               <ChartsView
-                assets={assets}
+                byCount={byCount}
+                byValue={byValue}
                 total={total}
                 hasQuantity={hasQuantity}
               />
@@ -122,7 +99,7 @@ function Home() {
                 value={count}
                 percent={diversification}
                 color="#2dd4bf"
-                delta={`${numTypes} of ${ASSET_TYPES.length} categories`}
+                delta={`${numTypes} of ${totalTypes} categories`}
                 footer="diversification"
               />
               <MetricCard
@@ -135,7 +112,7 @@ function Home() {
               />
               <MetricCard
                 label="Diversification"
-                value={`${numTypes}/${ASSET_TYPES.length}`}
+                value={`${numTypes}/${totalTypes}`}
                 percent={diversification}
                 color="#f59e0b"
                 delta={`${diversification}% spread`}
